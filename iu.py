@@ -3,12 +3,26 @@ import game as g
 
 def iniciar_interfaz():
     def inicio():
+        #limpiar pantalla inicio
         canvas.itemconfig(botonstart, image=botonstartPImage)
         ventana.after(150, lambda: canvas.delete(botonstart))  # elimina el botonStart del canvas
         ventana.after(150, lambda: canvas.delete(About))  # elimina el about del canvas
         ventana.after(150, lambda: canvas.itemconfig(bg, image=bg2)) # cambia a los niveles
-
-
+        
+        #cargar botones y paneles
+        def cargar ():
+            def NextF (): # animacion del boton
+                canvas.itemconfig(Next, image=NextBPimage)
+                ventana.after(150, lambda: canvas.itemconfig(Next, image=NextBimage))  
+                
+            #nextboton
+            NextBimage = tk.PhotoImage(file="Next1.png")
+            NextBPimage = tk.PhotoImage(file="Next1P.png")
+            canvas.N = NextBimage
+            canvas.NP = NextBPimage
+            Next = canvas.create_image(875, 250, image=NextBimage, anchor="nw")
+            canvas.tag_bind(Next,"<Button-1>", lambda e: NextF())
+        ventana.after(150, cargar)#esperar a limpiar la pantalla para crear el boton
     #boton about
     def aboutf():
         canvas.itemconfig(About, image=AboutPImage)

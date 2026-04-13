@@ -3,4 +3,3 @@ import iu as i
 if __name__ == "__main__":
     i.iniciar_interfaz()
  
- 
