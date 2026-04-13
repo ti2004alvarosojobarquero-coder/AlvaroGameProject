@@ -5,6 +5,14 @@ def iniciar_interfaz():
     def inicio():
         canvas.itemconfig(botonstart, image=botonstartPImage)
         ventana.after(150, lambda: canvas.delete(botonstart))  # elimina el botonStart del canvas
+        ventana.after(150, lambda: canvas.delete(About))  # elimina el about del canvas
+        ventana.after(150, lambda: canvas.itemconfig(bg, image=bg2)) # cambia a los niveles
+
+
+    #boton about
+    def aboutf():
+        canvas.itemconfig(About, image=AboutPImage)
+        ventana.after(150, lambda: canvas.itemconfig(About, image=AboutImage))  # cambia al boton normal
 
     #escape
     def salir(event):
@@ -20,8 +28,10 @@ def iniciar_interfaz():
 
     # fondos
     bg1 = tk.PhotoImage(file="Bg1.png")
+    bg2 = tk.PhotoImage(file="Levels1.png")
     canvas.bg1 = bg1
-    canvas.create_image(0, 0, image=bg1, anchor="nw")
+    canvas.bg2 = bg2
+    bg = canvas.create_image(0, 0, image=bg1, anchor="nw")
     
     #prueba sprite
     # villano = tk.PhotoImage(file="jefe villano 1.png")
@@ -34,12 +44,20 @@ def iniciar_interfaz():
     botonstartImage = tk.PhotoImage(file="BotonStart.png")
     botonstartPImage = tk.PhotoImage(file="BotonStartP.png")
     canvas.bs = botonstartImage
-    botonstart = canvas.create_image(390, 290, image=botonstartImage, anchor="nw")
+    canvas.bsP = botonstartPImage
+    botonstart = canvas.create_image(380, 300, image=botonstartImage, anchor="nw")
     canvas.tag_bind(botonstart, "<Button-1>", lambda e: inicio())
+    
+    #about
+    AboutImage = tk.PhotoImage(file="About.png")
+    AboutPImage = tk.PhotoImage(file="AboutP.png")
+    canvas.Ab = AboutImage
+    canvas.AbP = AboutPImage
+    About = canvas.create_image(380, 450, image=AboutImage, anchor="nw")
+    canvas.tag_bind(About, "<Button-1>", lambda e: aboutf())
 
     
-    ventana.update()
-    print(canvas.coords(botonstart))
+    
 
     ventana.mainloop()
 
