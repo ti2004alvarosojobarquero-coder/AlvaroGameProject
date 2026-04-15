@@ -2,6 +2,8 @@ import tkinter as tk
 import game as g
 
 def iniciar_interfaz():
+    
+
     def inicio():
         #limpiar pantalla inicio
         canvas.itemconfig(botonstart, image=botonstartPImage)
@@ -11,17 +13,53 @@ def iniciar_interfaz():
         
         #cargar botones y paneles
         def cargar ():
-            def NextF (): # animacion del boton
+            def NextF (): # animacion del boton, esconderlo 
                 canvas.itemconfig(Next, image=NextBPimage)
-                ventana.after(150, lambda: canvas.itemconfig(Next, image=NextBimage))  
+                ventana.after(150, lambda: canvas.itemconfig(Next, image=NextBimage)) 
+                ventana.after(160, lambda: canvas.itemconfig(bg, image=bg3))
+                ventana.after(160, lambda: canvas.itemconfig(Next, state="hidden"))
+                ventana.after(160, lambda: canvas.tag_unbind(Next, "<button1>"))
+                #aparecer next2
+                canvas.itemconfig(Next2, image=Next2BPimage)
+                ventana.after(150, lambda: canvas.itemconfig(Next2, image=Next2Bimage)) 
+                ventana.after(160, lambda: canvas.itemconfig(Next2, state="normal"))
+                ventana.after(160, lambda: canvas.tag_bind(Next2,"<Button-1>", lambda e: Next2F()))
+
+
+            def Next2F (): # animacion del boton, esconder
+                canvas.itemconfig(Next2, image=Next2BPimage)
+                ventana.after(150, lambda: canvas.itemconfig(Next2, image=Next2Bimage)) 
+                ventana.after(160, lambda: canvas.itemconfig(bg, image=bg2))
+                ventana.after(160, lambda: canvas.itemconfig(Next2, state="hidden"))
+                ventana.after(160, lambda: canvas.tag_unbind(Next2, "<button1>"))    
+
+                #aparecer next1
+                canvas.itemconfig(Next, image=NextBPimage)
+                ventana.after(150, lambda: canvas.itemconfig(Next, image=NextBimage)) 
+                ventana.after(160, lambda: canvas.itemconfig(Next, state="normal"))
+                ventana.after(160, lambda: canvas.tag_bind(Next,"<Button-1>", lambda e: NextF()))  
+        
+        
                 
-            #nextboton
+                
+            #next1
             NextBimage = tk.PhotoImage(file="Next1.png")
             NextBPimage = tk.PhotoImage(file="Next1P.png")
             canvas.N = NextBimage
             canvas.NP = NextBPimage
-            Next = canvas.create_image(875, 250, image=NextBimage, anchor="nw")
+            Next = canvas.create_image(890, 250, image=NextBimage, anchor="nw")
             canvas.tag_bind(Next,"<Button-1>", lambda e: NextF())
+            
+            #next2
+            Next2Bimage = tk.PhotoImage(file="Next2.png")
+            Next2BPimage = tk.PhotoImage(file="Next2P.png")
+            canvas.N2 = Next2Bimage
+            canvas.N2P = Next2BPimage
+            Next2 = canvas.create_image(50, 250, image=Next2Bimage, anchor="nw")
+            canvas.itemconfig(Next2, state="hidden")
+            canvas.tag_bind(Next2,"<Button-1>", lambda e: Next2F())
+            canvas.tag_unbind(Next2,"<Button-1>")
+
         ventana.after(150, cargar)#esperar a limpiar la pantalla para crear el boton
     #boton about
     def aboutf():
@@ -43,15 +81,13 @@ def iniciar_interfaz():
     # fondos
     bg1 = tk.PhotoImage(file="Bg1.png")
     bg2 = tk.PhotoImage(file="Levels1.png")
+    bg3 = tk.PhotoImage(file="Levels2.png")
     canvas.bg1 = bg1
     canvas.bg2 = bg2
+    canvas.bg3 = bg3
     bg = canvas.create_image(0, 0, image=bg1, anchor="nw")
     
-    #prueba sprite
-    # villano = tk.PhotoImage(file="jefe villano 1.png")
-    # villano = villano.zoom(12)
-    # canvas.villano = villano
-    # canvas.create_image(300, 0, image=villano, anchor="nw")
+    
 
     # botónes
     #botonstart
