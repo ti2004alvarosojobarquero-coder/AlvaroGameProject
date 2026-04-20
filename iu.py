@@ -2,14 +2,39 @@ import tkinter as tk
 import game as g
 
 def iniciar_interfaz():
-    
+    def pedir_nombre():
+        def save_name(event):
+            name = nombre_var.get().strip()
+            print(name)
+            popup.destroy()
+            
+        popup = tk.Toplevel(ventana)
+        popup.geometry("590x244")
+        popup.resizable(False, False)
+        popup.title("nombre")
+        popup.grab_set() # pa bloquear la ventana anterior
+        # popup.protocol("WM_DELETE_WINDOW", lambda: None)
+        canvas_popup = tk.Canvas(popup, width=744, height=264)
+        canvas_popup.pack()
+        
+        namebgimage = tk. PhotoImage(file="Namebg.png")
+        canvas_popup.namebg = namebgimage
+        namebg = canvas_popup.create_image(0, 0, image= namebgimage, anchor="nw")
+
+        nombre_var = tk.StringVar()
+        entry = tk.Entry(canvas_popup, textvariable=nombre_var)
+        entry.focus() # el cursor se pone dentro del entry
+        canvas_popup.create_window(230, 100, window=entry)
+        
+        popup.bind("<Return>", save_name)
 
     def inicio():
         #limpiar pantalla inicio
         canvas.itemconfig(botonstart, image=botonstartPImage)
         ventana.after(150, lambda: canvas.delete(botonstart))  # elimina el botonStart del canvas
         ventana.after(150, lambda: canvas.delete(About))  # elimina el about del canvas
-        ventana.after(150, lambda: canvas.itemconfig(bg, image=bg2)) # cambia a los niveles
+        ventana.after(160, pedir_nombre)
+        ventana.after(160, lambda: canvas.itemconfig(bg, image=bg2)) # cambia a los niveles
         
         #cargar botones y paneles
         def cargar ():
@@ -25,6 +50,15 @@ def iniciar_interfaz():
                 ventana.after(160, lambda: canvas.itemconfig(Next2, state="normal"))
                 ventana.after(160, lambda: canvas.tag_bind(Next2,"<Button-1>", lambda e: Next2F()))
 
+                #---mundos
+                #aparecer
+                ventana.after(160, lambda: canvas.itemconfig(m4, state="normal"))
+                ventana.after(160, lambda: canvas.itemconfig(m5, state="normal"))
+                #esconder
+                ventana.after(160, lambda: canvas.itemconfig(m1, state="hidden"))
+                ventana.after(160, lambda: canvas.itemconfig(m2, state="hidden"))
+                ventana.after(160, lambda: canvas.itemconfig(m3, state="hidden"))
+                
 
             def Next2F (): # animacion del boton, esconder
                 canvas.itemconfig(Next2, image=Next2BPimage)
@@ -38,10 +72,16 @@ def iniciar_interfaz():
                 ventana.after(150, lambda: canvas.itemconfig(Next, image=NextBimage)) 
                 ventana.after(160, lambda: canvas.itemconfig(Next, state="normal"))
                 ventana.after(160, lambda: canvas.tag_bind(Next,"<Button-1>", lambda e: NextF()))  
-        
-        
                 
-                
+                #---mundos
+                #aparecer
+                ventana.after(160, lambda: canvas.itemconfig(m1, state="normal"))
+                ventana.after(160, lambda: canvas.itemconfig(m2, state="normal"))
+                ventana.after(160, lambda: canvas.itemconfig(m3, state="normal"))
+                #esconder
+                ventana.after(160, lambda: canvas.itemconfig(m4, state="hidden"))
+                ventana.after(160, lambda: canvas.itemconfig(m5, state="hidden"))
+
             #next1
             NextBimage = tk.PhotoImage(file="Next1.png")
             NextBPimage = tk.PhotoImage(file="Next1P.png")
@@ -59,6 +99,26 @@ def iniciar_interfaz():
             canvas.itemconfig(Next2, state="hidden")
             canvas.tag_bind(Next2,"<Button-1>", lambda e: Next2F())
             canvas.tag_unbind(Next2,"<Button-1>")
+            
+            #------------------------mundos----------------------------------#
+            m1image = tk.PhotoImage(file="Lvl1.png")
+            canvas.m1 = m1image
+            m2image = tk.PhotoImage(file="Lvl2.png")
+            canvas.m2 = m2image
+            m3image = tk.PhotoImage(file="Lvl3.png")
+            canvas.m3 = m3image
+            m4image = tk.PhotoImage(file="Lvl4.png")
+            canvas.m4 = m4image
+            m5image = tk.PhotoImage(file="Lvl5.png")
+            canvas.m5 = m5image
+            
+            m1 = canvas.create_image(88, 224, image=m1image, anchor="nw")
+            m2 = canvas.create_image(272, 376, image=m2image, anchor="nw")
+            m3 = canvas.create_image(504, 312, image=m3image, anchor="nw")
+            m4 = canvas.create_image(216, 272, image=m4image, anchor="nw")
+            canvas.itemconfig(m4, state="hidden")
+            m5 = canvas.create_image(680, 208, image=m5image, anchor="nw")
+            canvas.itemconfig(m5, state="hidden")
 
         ventana.after(150, cargar)#esperar a limpiar la pantalla para crear el boton
     #boton about
