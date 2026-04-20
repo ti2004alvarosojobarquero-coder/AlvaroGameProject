@@ -2,11 +2,59 @@ import tkinter as tk
 import game as g
 
 def iniciar_interfaz():
+    def pedir_avatar():
+        def guardar_avat(x):
+            avatar_seleccionado = x
+            print(avatar_seleccionado)
+            def mostrar():
+                if avatar_seleccionado == 1:
+                    icono = canvas.create_image(20, 20, image=avat1image, anchor="nw")
+                    canvas.avat1 = avat1image
+                    canvas.tag_raise(icono)
+                elif avatar_seleccionado == 2:
+                    icono = canvas.create_image(20, 20, image=avat2image, anchor="nw")
+                    canvas.avat2 = avat2image
+                    canvas.tag_raise(icono)
+                else:
+                    icono = canvas.create_image(20, 20, image=avat3image, anchor="nw")
+                    canvas.avat3 = avat3image
+                    canvas.tag_raise(icono)
+            
+            popup_avat.destroy()
+            mostrar()
+        popup_avat = tk.Toplevel(ventana)
+        popup_avat.geometry("742x266")
+        popup_avat.resizable(False, False)
+        popup_avat.title("select")
+        popup_avat.grab_set() # pa bloquear la ventana anterior
+        # popup_avat.protocol("WM_DELETE_WINDOW", lambda: None)
+        canvas.popup_avat = tk.Canvas(popup_avat, width=760, height=370)
+        canvas.popup_avat.pack()
+        #background
+        avatimage = tk. PhotoImage(file="Avatares.png")
+        canvas.popup_avat.namebg = avatimage
+        avat = canvas.popup_avat.create_image(0, 0, image= avatimage, anchor="nw")
+        #--------------------------avatares--------------------------------#
+        avat1image = tk.PhotoImage(file="Avat1.png")
+        canvas.avat1 = avat1image
+        avat2image = tk.PhotoImage(file="Avat2.png")
+        canvas.avat2 = avat2image
+        avat3image = tk.PhotoImage(file="Avat3.png")
+        canvas.avat3 = avat3image
+        
+        avat1 = canvas.popup_avat.create_image(88, 140, image=avat1image, anchor="nw")
+        canvas.popup_avat.tag_bind(avat1,"<Button-1>", lambda e: guardar_avat(1) )
+        avat2 = canvas.popup_avat.create_image(288, 140,  image=avat2image, anchor="nw")
+        canvas.popup_avat.tag_bind(avat2,"<Button-1>", lambda e: guardar_avat(2) )
+        avat3 = canvas.popup_avat.create_image(488, 140, image=avat3image, anchor="nw")
+        canvas.popup_avat.tag_bind(avat3,"<Button-1>", lambda e: guardar_avat(3) )
+
     def pedir_nombre():
         def save_name(event):
             name = nombre_var.get().strip()
             print(name)
             popup.destroy()
+            pedir_avatar()
             
         popup = tk.Toplevel(ventana)
         popup.geometry("590x244")
@@ -16,11 +64,11 @@ def iniciar_interfaz():
         # popup.protocol("WM_DELETE_WINDOW", lambda: None)
         canvas_popup = tk.Canvas(popup, width=744, height=264)
         canvas_popup.pack()
-        
+        #background
         namebgimage = tk. PhotoImage(file="Namebg.png")
         canvas_popup.namebg = namebgimage
         namebg = canvas_popup.create_image(0, 0, image= namebgimage, anchor="nw")
-
+        #entry
         nombre_var = tk.StringVar()
         entry = tk.Entry(canvas_popup, textvariable=nombre_var)
         entry.focus() # el cursor se pone dentro del entry
@@ -111,6 +159,7 @@ def iniciar_interfaz():
             canvas.m4 = m4image
             m5image = tk.PhotoImage(file="Lvl5.png")
             canvas.m5 = m5image
+
             
             m1 = canvas.create_image(88, 224, image=m1image, anchor="nw")
             m2 = canvas.create_image(272, 376, image=m2image, anchor="nw")
@@ -119,6 +168,11 @@ def iniciar_interfaz():
             canvas.itemconfig(m4, state="hidden")
             m5 = canvas.create_image(680, 208, image=m5image, anchor="nw")
             canvas.itemconfig(m5, state="hidden")
+
+            #---------------panel--------------#
+            panelimage = tk.PhotoImage(file="bar.png")
+            canvas.panel= panelimage
+            panel = canvas.create_image(0, 0, image=panelimage, anchor="nw")
 
         ventana.after(150, cargar)#esperar a limpiar la pantalla para crear el boton
     #boton about
