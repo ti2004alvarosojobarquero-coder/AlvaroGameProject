@@ -1,0 +1,15 @@
+Pollo Blanco,90,22,0.10
+Homunculo,110,30,0.12
+Serpiente,75,28,0.22
+Resistencia 330 Ohm,140,15,0.05
+Pollo Rojo,85,35,0.10
+Pollo Amarillo con Sombrero,95,25,0.15
+Pollo Robot,130,20,0.05
+Pollo Normal,80,20,0.08
+Pan,120,18,0.08
+Raton,65,25,0.25
+5 Colones,60,15,0.07
+100 Colones,100,28,0.12
+Abeja,70,30,0.20
+Pollo Azul,100,27,0.13
+Entero de Cantones,150,38,0.10

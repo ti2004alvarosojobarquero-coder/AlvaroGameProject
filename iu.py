@@ -1,22 +1,65 @@
 import tkinter as tk
+from tkinter import messagebox
 import game as g
 
 def iniciar_interfaz():
+    g.cargar_personajes()
+    def pokemon_inicial_popup():
+        popup_PI = tk.Toplevel(ventana, bg="green")
+        popup_PI.geometry("590x550")
+        popup_PI.resizable(False, False)
+        popup_PI.title("amigos iniciales")
+        popup_PI.grab_set() # pa bloquear la ventana anterior
+        # popup.protocol("WM_DELETE_WINDOW", lambda: None)
+       
+        #checklist
+        seleccionados = []
+        vars_checks = []
+
+        def por_check(var, nombre):
+            if var.get():
+                if len(seleccionados)>=3:
+                    var.set(False)
+                    return
+                seleccionados.append(nombre)
+            else:
+                seleccionados.remove(nombre)
+            
+            for valor, checkbox in vars_checks:
+                if not valor.get(): # si no esta marcado el check box
+                    checkbox.config(state="disabled" if len(seleccionados) == 3 else "normal")
+        
+        for p in g.personajesP:
+            Bvar = tk.BooleanVar()
+            checkbox = tk.Checkbutton(popup_PI, text= p["nombre"], bg="lime green", variable= Bvar,
+                        command=lambda valor=Bvar, checkbox=["nombre"]: por_check(valor, checkbox))
+            checkbox.pack(anchor="w", padx="20", pady="2")
+            vars_checks.append((Bvar, checkbox ))
+
+        def confirmar():
+            if len(seleccionados)!= 3:
+                messagebox.showwarning("atencion", "debes elegir 3 amigos")
+                return
+            popup_PI.destroy()
+            
+            #funcion(seleccionados) futura para la siguiente lista
+        tk.Button(popup_PI, text="confirmar", command=confirmar, bg="gold").pack(pady=10)
+
     def pedir_avatar():
         def guardar_avat(x):
             avatar_seleccionado = x
-            print(avatar_seleccionado)
+            pokemon_inicial_popup()
             def mostrar():
                 if avatar_seleccionado == 1:
-                    icono = canvas.create_image(20, 20, image=avat1image, anchor="nw")
+                    icono = canvas.create_image(20, 28, image=avat1image, anchor="nw")
                     canvas.avat1 = avat1image
                     canvas.tag_raise(icono)
                 elif avatar_seleccionado == 2:
-                    icono = canvas.create_image(20, 20, image=avat2image, anchor="nw")
+                    icono = canvas.create_image(20, 28, image=avat2image, anchor="nw")
                     canvas.avat2 = avat2image
                     canvas.tag_raise(icono)
                 else:
-                    icono = canvas.create_image(20, 20, image=avat3image, anchor="nw")
+                    icono = canvas.create_image(20, 28, image=avat3image, anchor="nw")
                     canvas.avat3 = avat3image
                     canvas.tag_raise(icono)
             
@@ -51,10 +94,23 @@ def iniciar_interfaz():
 
     def pedir_nombre():
         def save_name(event):
-            name = nombre_var.get().strip()
-            print(name)
-            popup.destroy()
-            pedir_avatar()
+            label_info.destroy()#quitar la info ya obvia
+
+            if nombre_var.get().strip() == "": # texto vacio
+                label_error_nombre = tk.Label(popup, text="escribe un nombre", fg="red" )
+                canvas_popup.create_window(100, 100, window= label_error_nombre)
+
+            elif len(nombre_var.get().strip()) > 10: # maximo de caracteres
+                label_error_caracter = tk.Label(popup, text="maximo 10 caracteres", fg="red" )
+                canvas_popup.create_window(100, 100, window= label_error_caracter)
+
+            else: #guardar
+                name = nombre_var.get().strip()
+                print(name)
+                popup.destroy()
+                label_nombre = tk.Label(ventana, text=name )
+                canvas.create_window( 50, 14, window= label_nombre)
+                pedir_avatar()
             
         popup = tk.Toplevel(ventana)
         popup.geometry("590x244")
@@ -72,8 +128,11 @@ def iniciar_interfaz():
         nombre_var = tk.StringVar()
         entry = tk.Entry(canvas_popup, textvariable=nombre_var)
         entry.focus() # el cursor se pone dentro del entry
-        canvas_popup.create_window(230, 100, window=entry)
-        
+        canvas_popup.create_window(240, 100, window=entry)
+        #label de informacion
+        label_info = tk.Label(popup, text="presione enter para guardar")
+        canvas_popup.create_window(90, 100, window= label_info)
+
         popup.bind("<Return>", save_name)
 
     def inicio():
@@ -202,8 +261,6 @@ def iniciar_interfaz():
     bg = canvas.create_image(0, 0, image=bg1, anchor="nw")
     
     
-
-    # botónes
     #botonstart
     botonstartImage = tk.PhotoImage(file="BotonStart.png")
     botonstartPImage = tk.PhotoImage(file="BotonStartP.png")
