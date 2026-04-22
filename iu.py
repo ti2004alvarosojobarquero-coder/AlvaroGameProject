@@ -145,6 +145,23 @@ def iniciar_interfaz():
         
         #cargar botones y paneles
         def cargar ():
+            def flecha_selectora(nv):
+                if nv == 1:
+                    canvas.itemconfig(flecha, state="normal")
+                    canvas.coords(flecha, 125, 120)
+                elif nv == 2:
+                    canvas.itemconfig(flecha, state="normal")
+                    canvas.coords(flecha, 332, 260)
+                elif nv == 3:
+                    canvas.itemconfig(flecha, state="normal")
+                    canvas.coords(flecha, 600, 180)
+                elif nv == 4:
+                    canvas.itemconfig(flecha, state="normal")
+                    canvas.coords(flecha, 346, 170)
+                elif nv == 5:
+                    canvas.itemconfig(flecha, state="normal")
+                    canvas.coords(flecha, 800, 120)        
+
             def NextF (): # animacion del boton, esconderlo 
                 canvas.itemconfig(Next, image=NextBPimage)
                 ventana.after(150, lambda: canvas.itemconfig(Next, image=NextBimage)) 
@@ -165,7 +182,7 @@ def iniciar_interfaz():
                 ventana.after(160, lambda: canvas.itemconfig(m1, state="hidden"))
                 ventana.after(160, lambda: canvas.itemconfig(m2, state="hidden"))
                 ventana.after(160, lambda: canvas.itemconfig(m3, state="hidden"))
-                
+                ventana.after(160, lambda: canvas.itemconfig(flecha, state="hidde"))
 
             def Next2F (): # animacion del boton, esconder
                 canvas.itemconfig(Next2, image=Next2BPimage)
@@ -188,6 +205,7 @@ def iniciar_interfaz():
                 #esconder
                 ventana.after(160, lambda: canvas.itemconfig(m4, state="hidden"))
                 ventana.after(160, lambda: canvas.itemconfig(m5, state="hidden"))
+                ventana.after(160, lambda: canvas.itemconfig(flecha, state="hidde"))
 
             #next1
             NextBimage = tk.PhotoImage(file="Next1.png")
@@ -218,15 +236,26 @@ def iniciar_interfaz():
             canvas.m4 = m4image
             m5image = tk.PhotoImage(file="Lvl5.png")
             canvas.m5 = m5image
-
+            
             
             m1 = canvas.create_image(88, 224, image=m1image, anchor="nw")
+            canvas.tag_bind(m1,"<Button-1>", lambda e: flecha_selectora(1))
             m2 = canvas.create_image(272, 376, image=m2image, anchor="nw")
+            canvas.tag_bind(m2,"<Button-1>", lambda e: flecha_selectora(2))
             m3 = canvas.create_image(504, 312, image=m3image, anchor="nw")
+            canvas.tag_bind(m3,"<Button-1>", lambda e: flecha_selectora(3))
             m4 = canvas.create_image(216, 272, image=m4image, anchor="nw")
+            canvas.tag_bind(m4,"<Button-1>", lambda e: flecha_selectora(4))
             canvas.itemconfig(m4, state="hidden")
             m5 = canvas.create_image(680, 208, image=m5image, anchor="nw")
+            canvas.tag_bind(m5,"<Button-1>", lambda e: flecha_selectora(5))
             canvas.itemconfig(m5, state="hidden")
+
+            #---------------------flecha-----------------------------------------#
+            flechaimage = tk.PhotoImage(file="selection.png")
+            canvas.FS = flechaimage
+            flecha = canvas.create_image(0, 0, image= flechaimage, anchor="nw")
+            canvas.itemconfig(flecha, state="hidden")
 
             #---------------panel--------------#
             panelimage = tk.PhotoImage(file="bar.png")
