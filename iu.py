@@ -2,8 +2,19 @@ import tkinter as tk
 from tkinter import messagebox
 import game as g
 
+
 def iniciar_interfaz():
     g.cargar_personajes()
+    def invFun(selec):
+            popup_inv = tk.Toplevel(ventana, bg="green")
+            popup_inv.geometry("590x550")
+            popup_inv.resizable(False, False)
+            popup_inv.title("INVENTARIO")
+            popup_inv.grab_set()
+            for p in selec:
+                labelinv = tk.Label(popup_inv, text=f"{p["nombre"]}, vida={p["hp"]}, daño={p["ataque"]}", bg="lime green")
+                labelinv.pack(anchor="w", padx="20", pady="2")
+
     def pokemon_inicial_popup():
         popup_PI = tk.Toplevel(ventana, bg="green")
         popup_PI.geometry("590x550")
@@ -15,6 +26,7 @@ def iniciar_interfaz():
         #checklist
         seleccionados = []
         vars_checks = []
+    
 
         def por_check(var, nombre):
             if var.get():
@@ -32,15 +44,23 @@ def iniciar_interfaz():
         for p in g.personajesP:
             Bvar = tk.BooleanVar()
             checkbox = tk.Checkbutton(popup_PI, text= p["nombre"], bg="lime green", variable= Bvar,
-                        command=lambda valor=Bvar, checkbox=["nombre"]: por_check(valor, checkbox))
+                        command=lambda valor=Bvar, personaje = p : por_check(valor, personaje))
             checkbox.pack(anchor="w", padx="20", pady="2")
             vars_checks.append((Bvar, checkbox ))
 
         def confirmar():
             if len(seleccionados)!= 3:
                 messagebox.showwarning("atencion", "debes elegir 3 amigos")
-                return
-            popup_PI.destroy()
+                return 
+            else:
+             #-------------------inventario----------------------#
+                invimage = tk.PhotoImage(file="Poke.png")
+                canvas.inv = invimage
+                inv = canvas.create_image(900, 20, image= invimage, anchor="nw")
+                canvas.tag_bind(inv,"<Button-1>", lambda e: invFun(seleccionados) ) # abrir inventario
+
+                popup_PI.destroy()
+                print(seleccionados)
             
             #funcion(seleccionados) futura para la siguiente lista
         tk.Button(popup_PI, text="confirmar", command=confirmar, bg="gold").pack(pady=10)
@@ -160,8 +180,10 @@ def iniciar_interfaz():
                     canvas.coords(flecha, 346, 170)
                 elif nv == 5:
                     canvas.itemconfig(flecha, state="normal")
-                    canvas.coords(flecha, 800, 120)        
+                    canvas.coords(flecha, 800, 120) 
+            
 
+            #-----------------nextbuttons----------------------------#
             def NextF (): # animacion del boton, esconderlo 
                 canvas.itemconfig(Next, image=NextBPimage)
                 ventana.after(150, lambda: canvas.itemconfig(Next, image=NextBimage)) 
@@ -262,6 +284,9 @@ def iniciar_interfaz():
             canvas.panel= panelimage
             panel = canvas.create_image(0, 0, image=panelimage, anchor="nw")
 
+           
+
+
         ventana.after(150, cargar)#esperar a limpiar la pantalla para crear el boton
     #boton about
     def aboutf():
@@ -306,7 +331,7 @@ def iniciar_interfaz():
     About = canvas.create_image(380, 450, image=AboutImage, anchor="nw")
     canvas.tag_bind(About, "<Button-1>", lambda e: aboutf())
 
-    
+
     
 
     ventana.mainloop()
