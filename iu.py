@@ -1,8 +1,7 @@
 import tkinter as tk
 from tkinter import messagebox
 import game as g
-
-
+delatador = 0
 def iniciar_interfaz():
     g.cargar_personajes()
     def invFun(selec):
@@ -56,7 +55,7 @@ def iniciar_interfaz():
              #-------------------inventario----------------------#
                 invimage = tk.PhotoImage(file="Poke.png")
                 canvas.inv = invimage
-                inv = canvas.create_image(900, 20, image= invimage, anchor="nw")
+                inv = canvas.create_image(900, 20, image= invimage, anchor="nw", tags="selectorniv")
                 canvas.tag_bind(inv,"<Button-1>", lambda e: invFun(seleccionados) ) # abrir inventario
 
                 popup_PI.destroy()
@@ -71,15 +70,15 @@ def iniciar_interfaz():
             pokemon_inicial_popup()
             def mostrar():
                 if avatar_seleccionado == 1:
-                    icono = canvas.create_image(20, 28, image=avat1image, anchor="nw")
+                    icono = canvas.create_image(20, 28, image=avat1image, anchor="nw", tags="selectorniv")
                     canvas.avat1 = avat1image
                     canvas.tag_raise(icono)
                 elif avatar_seleccionado == 2:
-                    icono = canvas.create_image(20, 28, image=avat2image, anchor="nw")
+                    icono = canvas.create_image(20, 28, image=avat2image, anchor="nw", tags="selectorniv")
                     canvas.avat2 = avat2image
                     canvas.tag_raise(icono)
                 else:
-                    icono = canvas.create_image(20, 28, image=avat3image, anchor="nw")
+                    icono = canvas.create_image(20, 28, image=avat3image, anchor="nw", tags="selectorniv")
                     canvas.avat3 = avat3image
                     canvas.tag_raise(icono)
             
@@ -129,9 +128,11 @@ def iniciar_interfaz():
                 print(name)
                 popup.destroy()
                 label_nombre = tk.Label(ventana, text=name )
-                canvas.create_window( 50, 14, window= label_nombre)
+                canvas.create_window( 50, 14, window= label_nombre, tags="selectorniv")
                 pedir_avatar()
-            
+                global delatador
+                delatador = 1
+
         popup = tk.Toplevel(ventana)
         popup.geometry("590x244")
         popup.resizable(False, False)
@@ -154,15 +155,21 @@ def iniciar_interfaz():
         canvas_popup.create_window(90, 100, window= label_info)
 
         popup.bind("<Return>", save_name)
-
+    def menu():
+        canvas.itemconfig("selectorniv", state="hidden")
+        canvas.itemconfig("selectornivE", state="hidden")   
+        canvas.itemconfig("selectorniv2", state="hidden")  
+        canvas.itemconfig("inicio", state="normal")
+        canvas.itemconfig(botonstart, image=botonstartImage) 
+        canvas.itemconfig(bg, image=bg1)
     def inicio():
+        nonlocal ya_cargo     
         #limpiar pantalla inicio
         canvas.itemconfig(botonstart, image=botonstartPImage)
-        ventana.after(150, lambda: canvas.delete(botonstart))  # elimina el botonStart del canvas
-        ventana.after(150, lambda: canvas.delete(About))  # elimina el about del canvas
-        ventana.after(160, pedir_nombre)
+        ventana.after(150, lambda: canvas.itemconfig("inicio", state="hidden"))  # elimina el botonStart del canvas
+        if delatador == 0: ventana.after(160, pedir_nombre) 
         ventana.after(160, lambda: canvas.itemconfig(bg, image=bg2)) # cambia a los niveles
-        
+        ventana.after(160, lambda:canvas.itemconfig("selectorniv", state="normal"))
         #cargar botones y paneles
         def cargar ():
             def flecha_selectora(nv):
@@ -234,7 +241,7 @@ def iniciar_interfaz():
             NextBPimage = tk.PhotoImage(file="Next1P.png")
             canvas.N = NextBimage
             canvas.NP = NextBPimage
-            Next = canvas.create_image(890, 250, image=NextBimage, anchor="nw")
+            Next = canvas.create_image(890, 250, image=NextBimage, anchor="nw", tags="selectorniv")
             canvas.tag_bind(Next,"<Button-1>", lambda e: NextF())
             
             #next2
@@ -242,7 +249,7 @@ def iniciar_interfaz():
             Next2BPimage = tk.PhotoImage(file="Next2P.png")
             canvas.N2 = Next2Bimage
             canvas.N2P = Next2BPimage
-            Next2 = canvas.create_image(50, 250, image=Next2Bimage, anchor="nw")
+            Next2 = canvas.create_image(50, 250, image=Next2Bimage, anchor="nw", tags="selectorniv2")
             canvas.itemconfig(Next2, state="hidden")
             canvas.tag_bind(Next2,"<Button-1>", lambda e: Next2F())
             canvas.tag_unbind(Next2,"<Button-1>")
@@ -260,34 +267,40 @@ def iniciar_interfaz():
             canvas.m5 = m5image
             
             
-            m1 = canvas.create_image(88, 224, image=m1image, anchor="nw")
+            m1 = canvas.create_image(88, 224, image=m1image, anchor="nw", tags="selectorniv")
             canvas.tag_bind(m1,"<Button-1>", lambda e: flecha_selectora(1))
-            m2 = canvas.create_image(272, 376, image=m2image, anchor="nw")
+            m2 = canvas.create_image(272, 376, image=m2image, anchor="nw", tags="selectorniv")
             canvas.tag_bind(m2,"<Button-1>", lambda e: flecha_selectora(2))
-            m3 = canvas.create_image(504, 312, image=m3image, anchor="nw")
+            m3 = canvas.create_image(504, 312, image=m3image, anchor="nw", tags="selectorniv")
             canvas.tag_bind(m3,"<Button-1>", lambda e: flecha_selectora(3))
-            m4 = canvas.create_image(216, 272, image=m4image, anchor="nw")
+            m4 = canvas.create_image(216, 272, image=m4image, anchor="nw", tags="selectorniv2")
             canvas.tag_bind(m4,"<Button-1>", lambda e: flecha_selectora(4))
             canvas.itemconfig(m4, state="hidden")
-            m5 = canvas.create_image(680, 208, image=m5image, anchor="nw")
+            m5 = canvas.create_image(680, 208, image=m5image, anchor="nw", tags="selectorniv2")
             canvas.tag_bind(m5,"<Button-1>", lambda e: flecha_selectora(5))
             canvas.itemconfig(m5, state="hidden")
 
             #---------------------flecha-----------------------------------------#
             flechaimage = tk.PhotoImage(file="selection.png")
             canvas.FS = flechaimage
-            flecha = canvas.create_image(0, 0, image= flechaimage, anchor="nw")
+            flecha = canvas.create_image(0, 0, image= flechaimage, anchor="nw", tags="selectornivE")
             canvas.itemconfig(flecha, state="hidden")
 
             #---------------panel--------------#
             panelimage = tk.PhotoImage(file="bar.png")
             canvas.panel= panelimage
-            panel = canvas.create_image(0, 0, image=panelimage, anchor="nw")
-
+            panel = canvas.create_image(0, 0, image=panelimage, anchor="nw", tags="selectorniv")
+            
+            #-------------------menu--------------------#
+            botonmenu = tk.Button(ventana, text="menu", bg="yellow", command=menu )
+            canvas.create_window(800, 30, window= botonmenu, tags="selectorniv")
+            
            
 
 
-        ventana.after(150, cargar)#esperar a limpiar la pantalla para crear el boton
+        if not ya_cargo:
+            ventana.after(150, cargar)
+            ya_cargo = True
     #boton about
     def aboutf():
         canvas.itemconfig(About, image=AboutPImage)
@@ -304,6 +317,7 @@ def iniciar_interfaz():
 
     canvas = tk.Canvas(ventana, highlightthickness=0, bd=0)
     canvas.pack(fill="both", expand=True)
+    ya_cargo = False
 
     # fondos
     bg1 = tk.PhotoImage(file="Bg1.png")
@@ -320,7 +334,7 @@ def iniciar_interfaz():
     botonstartPImage = tk.PhotoImage(file="BotonStartP.png")
     canvas.bs = botonstartImage
     canvas.bsP = botonstartPImage
-    botonstart = canvas.create_image(380, 300, image=botonstartImage, anchor="nw")
+    botonstart = canvas.create_image(380, 300, image=botonstartImage, anchor="nw", tags="inicio")
     canvas.tag_bind(botonstart, "<Button-1>", lambda e: inicio())
     
     #about
@@ -328,7 +342,7 @@ def iniciar_interfaz():
     AboutPImage = tk.PhotoImage(file="AboutP.png")
     canvas.Ab = AboutImage
     canvas.AbP = AboutPImage
-    About = canvas.create_image(380, 450, image=AboutImage, anchor="nw")
+    About = canvas.create_image(380, 450, image=AboutImage, anchor="nw", tags="inicio")
     canvas.tag_bind(About, "<Button-1>", lambda e: aboutf())
 
 

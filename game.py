@@ -16,12 +16,6 @@ def cargar_personajes(archivo="personajes.txt"): # esto para poder llamarla vaci
                     "ataque": int(ataque),
                     "critico": float(critico)
                 })
-puntaje = 0 
-def puntaje():
-    puntaje = 2
-    return puntaje + 1
 
-def restar_puntaje():
-    return puntaje - 1
 
     
