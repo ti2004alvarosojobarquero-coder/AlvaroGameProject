@@ -25,11 +25,120 @@ def iniciar_interfaz():
             labelinv.pack(anchor="w", padx=20, pady=2)
  
     #------------------------------------------------------------#
+    #  TABLA DE PUNTAJES  (estilo arcade retro)
+    #------------------------------------------------------------#
+    def puntajes_popup():
+        popup_pts = tk.Toplevel(ventana, bg="#0a0a0a")
+        popup_pts.geometry("480x520")
+        popup_pts.resizable(False, False)
+        popup_pts.title("HALL OF FAME")
+        popup_pts.grab_set()
+ 
+        cv = tk.Canvas(popup_pts, width=480, height=520, bg="#0a0a0a",
+                       highlightthickness=0)
+        cv.pack()
+ 
+        # titulo estilo arcade
+        cv.create_text(240, 35, text="★  MEJORES PUNTAJES  ★",
+                       fill="#FFD700", font=("Courier", 18, "bold"))
+        cv.create_text(240, 60, text="─" * 38,
+                       fill="#444", font=("Courier", 10))
+ 
+        # cabecera
+        cv.create_text(60,  85, text="RANK", fill="#aaa", font=("Courier", 11, "bold"))
+        cv.create_text(220, 85, text="NOMBRE",  fill="#aaa", font=("Courier", 11, "bold"))
+        cv.create_text(390, 85, text="POKEMONES", fill="#aaa", font=("Courier", 11, "bold"))
+        cv.create_text(240, 100, text="─" * 38,
+                       fill="#444", font=("Courier", 10))
+ 
+        tabla = g.cargar_puntajes()
+ 
+        colores_rank = ["#FFD700", "#C0C0C0", "#CD7F32"]  # oro, plata, bronce
+ 
+        if not tabla:
+            cv.create_text(240, 280, text="Sin jugadores aún.\n¡Sé el primero!",
+                           fill="#555", font=("Courier", 13), justify="center")
+        else:
+            for i, entrada in enumerate(tabla[:15]):   # maximo 15 en pantalla
+                y       = 120 + i * 24
+                color   = colores_rank[i] if i < 3 else "#00FF88"
+                prefijo = ["🥇", "🥈", "🥉"][i] if i < 3 else f" {i+1}."
+ 
+                cv.create_text(60,  y, text=prefijo,
+                               fill=color, font=("Courier", 11))
+                cv.create_text(220, y, text=entrada["nombre"][:14],
+                               fill=color, font=("Courier", 11))
+                cv.create_text(390, y, text=str(entrada["puntaje"]),
+                               fill=color, font=("Courier", 11, "bold"))
+ 
+        popup_pts.bind("<Escape>", lambda e: popup_pts.destroy())
+        tk.Button(cv, text="CERRAR", bg="#FFD700", fg="black",
+                  font=("Courier", 10, "bold"),
+                  command=popup_pts.destroy).place(x=190, y=485)
+ 
+    #------------------------------------------------------------#
+    #  GAME OVER  — se llama cuando el jugador se queda sin
+    #  pokemones (< 3 vivos) o pierde una batalla con < 3 vivos.
+    #  Guarda el puntaje automáticamente y bloquea el juego.
+    #------------------------------------------------------------#
+    def game_over():
+        puntaje = len(canvas.inventario)
+        g.guardar_puntaje(canvas.nombre_jugador, puntaje)
+        popup_go = tk.Toplevel(ventana, bg="#0a0a0a")
+        popup_go.geometry("400x260")
+        popup_go.resizable(False, False)
+        popup_go.title("GAME OVER")
+        popup_go.grab_set()
+        
+ 
+        cv = tk.Canvas(popup_go, width=400, height=260, bg="#0a0a0a",
+                       highlightthickness=0)
+        cv.pack()
+ 
+        cv.create_text(200, 60,  text="G A M E   O V E R",
+                       fill="red", font=("Courier", 22, "bold"))
+        cv.create_text(200, 110, text=f"Pokemones acumulados: {puntaje}",
+                       fill="#FFD700", font=("Courier", 13))
+        cv.create_text(200, 140, text="Tu puntaje fue guardado.",
+                       fill="#aaa", font=("Courier", 11))
+ 
+        def cerrar_todo():
+            popup_go.destroy()
+            # bloquear todos los mundos pa que no sigan jugando
+            canvas.itemconfig("selectorniv",  state="hidden")
+            canvas.itemconfig("selectorniv2", state="hidden")
+            canvas.itemconfig("selectornivE", state="hidden")
+            canvas.juego_terminado = True
+        popup_go.protocol("WM_DELETE_WINDOW", cerrar_todo)
+        
+        tk.Button(popup_go, text="VER PUNTAJES", bg="#FFD700", fg="black",
+                  font=("Courier", 10, "bold"),
+                  command=lambda: [cerrar_todo(), puntajes_popup()]).place(x=100, y=200)
+        tk.Button(popup_go, text="SALIR", bg="#333", fg="white",
+                  font=("Courier", 10, "bold"),
+                  command=lambda: [cerrar_todo(), ventana.destroy()]).place(x=250, y=200)
+ 
+        popup_go.protocol("WM_DELETE_WINDOW", cerrar_todo)
+ 
+    #------------------------------------------------------------#
     #  PRE-BATALLA: elegir 3 pokemones del inventario
-    #  Recibe el nivel pa pasarselo a batalla_popup.
-    #  Si no hay pokemones vivos avisa y no abre la batalla.
     #------------------------------------------------------------#
     def seleccion_batalla_popup(nivel=1):
+ 
+        # --- nivel bloqueado? ---
+        if nivel > canvas.nivel_desbloqueado:
+            messagebox.showinfo("Bloqueado", f"¡Tenés que ganar el nivel {nivel-1} primero!")
+            return
+ 
+        # --- nivel ya completado? ---
+        if nivel in canvas.niveles_completados:
+            messagebox.showinfo("Ya ganado", f"Ya completaste el nivel {nivel}.\n¡Avanzá al siguiente!")
+            return
+ 
+        # --- juego terminado? ---
+        if getattr(canvas, "juego_terminado", False):
+            return
+ 
         popup_sel = tk.Toplevel(ventana, bg="purple")
         popup_sel.geometry("400x450")
         popup_sel.resizable(False, False)
@@ -55,10 +164,8 @@ def iniciar_interfaz():
                 if not valor.get():
                     checkbox.config(state="disabled" if len(elegidos) == 3 else "normal")
  
-        # solo pokemones vivos del inventario permanente
         vivos = [p for p in canvas.inventario if p["hp"] > 0]
  
-        # --- si no hay pokemones vivos no se puede batallar ---
         if not vivos:
             messagebox.showerror("Sin pokemones", "No tenés pokemones vivos para batallar.")
             popup_sel.destroy()
@@ -88,10 +195,6 @@ def iniciar_interfaz():
  
     #------------------------------------------------------------#
     #  POPUP DE BATALLA
-    #  Recibe el equipo del jugador y el nivel.
-    #  El Hollow se muestra arriba como avatar enemigo pero
-    #  NO pelea, igual que el avatar del jugador.
-    #  El equipo enemigo son 3 pokemones que el jugador no tiene.
     #------------------------------------------------------------#
     def batalla_popup(equipo_jugador, nivel=1):
         popup_bat = tk.Toplevel(ventana, bg="purple")
@@ -104,10 +207,9 @@ def iniciar_interfaz():
                                bg="#2d0057", highlightthickness=0)
         canvas_bat.pack()
  
-        # --- equipo enemigo: 3 pokemones + path del hollow como avatar ---
         equipo_enemigo, hollow_path = g.generar_equipo_enemigo(nivel, canvas.inventario)
  
-        # ------- avatar del jugador (izquierda arriba) -------#
+        # ------- avatar del jugador -------#
         if hasattr(canvas, "avat1") and canvas.avat1:
             img_avat = canvas.avat1
         elif hasattr(canvas, "avat2") and canvas.avat2:
@@ -117,21 +219,19 @@ def iniciar_interfaz():
         canvas_bat.create_image(30, 20, image=img_avat, anchor="nw")
         canvas_bat.img_avat = img_avat
  
-        # ------- hollow como avatar enemigo (derecha arriba) -------#
+        # ------- hollow como avatar enemigo -------#
         try:
             img_hollow = tk.PhotoImage(file=hollow_path)
         except Exception:
             img_hollow = tk.PhotoImage(width=64, height=64)
         canvas_bat.create_image(606, 20, image=img_hollow, anchor="nw")
-        canvas_bat.img_hollow = img_hollow  # referencia pa no perderla
+        canvas_bat.img_hollow = img_hollow
  
-        # ------- títulos de columna -------#
         canvas_bat.create_text(180, 15, text="TU EQUIPO",
                                fill="white", font=("Arial", 10, "bold"))
         canvas_bat.create_text(520, 15, text="ENEMIGOS",
                                fill="red",   font=("Arial", 10, "bold"))
  
-        # ------- imágenes pokemones del jugador (izquierda) -------#
         imgs_jug = []
         for i, poke in enumerate(equipo_jugador):
             img = tk.PhotoImage(file=poke["imagen"])
@@ -140,7 +240,6 @@ def iniciar_interfaz():
                                     anchor="nw", tags=f"pjug_{i}")
         canvas_bat.imgs_jug = imgs_jug
  
-        # ------- imágenes pokemones enemigos (derecha) -------#
         imgs_ene = []
         for i, poke in enumerate(equipo_enemigo):
             img = tk.PhotoImage(file=poke["imagen"])
@@ -149,7 +248,6 @@ def iniciar_interfaz():
                                     anchor="nw", tags=f"pene_{i}")
         canvas_bat.imgs_ene = imgs_ene
  
-        # ------- labels de HP jugador -------#
         hp_jug = []
         for i, poke in enumerate(equipo_jugador):
             lbl = tk.Label(popup_bat,
@@ -158,7 +256,6 @@ def iniciar_interfaz():
             canvas_bat.create_window(90 + i * 110, 360, window=lbl)
             hp_jug.append(lbl)
  
-        # ------- labels de HP enemigo -------#
         hp_ene = []
         for i, poke in enumerate(equipo_enemigo):
             lbl = tk.Label(popup_bat,
@@ -167,7 +264,6 @@ def iniciar_interfaz():
             canvas_bat.create_window(430 + i * 100, 360, window=lbl)
             hp_ene.append(lbl)
  
-        # ------- log de batalla -------#
         log_text = tk.Text(popup_bat, width=50, height=5,
                            bg="black", fg="lime",
                            font=("Courier", 8), state="disabled")
@@ -179,7 +275,6 @@ def iniciar_interfaz():
             log_text.see("end")
             log_text.config(state="disabled")
  
-        # ------- botón atacar y label de turno -------#
         btn_atacar = tk.Button(popup_bat, text="⚔  ATACAR",
                                bg="gold", font=("Arial", 13, "bold"), width=10)
         canvas_bat.create_window(180, 420, window=btn_atacar)
@@ -189,12 +284,7 @@ def iniciar_interfaz():
         canvas_bat.create_window(500, 420, window=lbl_turno)
  
         # =========================================================
-        # RECURSIÓN DE COLA: procesar_turno(acciones, i)
-        # ---------------------------------------------------------
-        # Recibe una lista de funciones (acciones) y un índice i.
-        # Ejecuta acciones[i] y se llama a sí misma con i+1
-        # después de 1 segundo via after(), sin bloquear tkinter.
-        # Caso base: i >= len(acciones) → reactiva botón.
+        # RECURSIÓN DE COLA
         # =========================================================
         def procesar_turno(acciones, i=0):
             if i >= len(acciones):
@@ -204,7 +294,7 @@ def iniciar_interfaz():
             acciones[i]()
             popup_bat.after(1000, lambda: procesar_turno(acciones, i + 1))
  
-        # ------- acción del jugador en su turno -------#
+        # ------- acción del jugador -------#
         def accion_jugador():
             atacante = next((p for p in equipo_jugador if p["hp"] > 0), None)
             defensor = next((p for p in equipo_enemigo if p["hp"] > 0), None)
@@ -226,15 +316,20 @@ def iniciar_interfaz():
                 canvas_bat.itemconfig(f"pene_{idx}", state="hidden")
                 escribir_log(f"¡{defensor['nombre']} fue derrotado!")
  
-                # --- chequear victoria ---
                 if all(p["hp"] <= 0 for p in equipo_enemigo):
-                    # buscar el hp original en personajesP pa agregar con vida completa
+                    # agregar pokemones enemigos al inventario con vida original
                     nuevos = []
                     for p in equipo_enemigo:
                         original = next((x for x in g.personajesP if x["nombre"] == p["nombre"]), None)
                         if original:
-                            nuevos.append(dict(original))  # copia fresca con hp original
+                            nuevos.append(dict(original))
                     canvas.inventario.extend(nuevos)
+ 
+                    # desbloquear siguiente nivel
+                    canvas.niveles_completados.add(nivel)
+                    if nivel < 5:
+                        canvas.nivel_desbloqueado = max(canvas.nivel_desbloqueado, nivel + 1)
+ 
                     escribir_log("¡¡GANASTE!! Los pokemones enemigos son tuyos.")
                     btn_atacar.config(state="disabled", text="Victoria ✓")
                     popup_bat.after(2000, popup_bat.destroy)
@@ -262,16 +357,31 @@ def iniciar_interfaz():
                 canvas_bat.itemconfig(f"pjug_{idx}", state="hidden")
                 escribir_log(f"¡{defensor['nombre']} cayó para siempre!")
  
-                # se elimina permanentemente del inventario
+                # eliminar permanentemente del inventario
                 if defensor in canvas.inventario:
                     canvas.inventario.remove(defensor)
  
-                # --- chequear derrota ---
                 if all(p["hp"] <= 0 for p in equipo_jugador):
                     escribir_log("PERDISTE... todos tus pokemones cayeron.")
                     btn_atacar.config(state="disabled", text="Derrota ✗")
  
-        # ------- al presionar el botón atacar -------#
+                    # --- BUG FIX: cerrar batalla y evaluar game over ---
+                    def resolver_derrota():
+                        popup_bat.destroy()
+                        vivos_totales = [p for p in canvas.inventario if p["hp"] > 0]
+                        if len(vivos_totales) < 3:
+                            # menos de 3 pokemones vivos → game over
+                            game_over()
+                        else:
+                            # puede reintentar el nivel
+                            messagebox.showinfo(
+                                "Derrota",
+                                f"Perdiste el nivel {nivel}, pero aún tenés {len(vivos_totales)} pokemones.\n¡Podés reintentar!"
+                            )
+ 
+                    popup_bat.after(2000, resolver_derrota)
+ 
+        # ------- botón atacar -------#
         def atacar():
             btn_atacar.config(state="disabled")
             lbl_turno.config(text="Atacando...", fg="white")
@@ -398,6 +508,7 @@ def iniciar_interfaz():
  
             else:
                 name = nombre_var.get().strip()
+                canvas.nombre_jugador = name   # guardar para puntajes
                 print(name)
                 popup.destroy()
                 label_nombre = tk.Label(ventana, text=name)
@@ -411,6 +522,8 @@ def iniciar_interfaz():
         popup.resizable(False, False)
         popup.title("nombre")
         popup.grab_set()
+        # impedir cierre con la X
+        popup.protocol("WM_DELETE_WINDOW", lambda: None)
  
         canvas_popup = tk.Canvas(popup, width=744, height=264)
         canvas_popup.pack()
@@ -551,6 +664,22 @@ def iniciar_interfaz():
             botonmenu = tk.Button(ventana, text="menu", bg="yellow", command=menu)
             canvas.create_window(800, 30, window=botonmenu, tags="selectorniv")
  
+            #-------------------puntajes--------------------#
+            boton_pts = tk.Button(ventana, text="🏆 PUNTAJES", bg="#FFD700", fg="black",
+                                  font=("Courier", 9, "bold"), command=puntajes_popup)
+            canvas.create_window(700, 30, window=boton_pts, tags="selectorniv")
+ 
+            #-------------------guardar puntaje--------------#
+            def guardar_manual():
+                puntaje = len(canvas.inventario)
+                g.guardar_puntaje(canvas.nombre_jugador, puntaje)
+                messagebox.showinfo("Guardado",
+                                    f"Puntaje de {canvas.nombre_jugador} guardado: {puntaje} pokemones ✓")
+ 
+            boton_guardar = tk.Button(ventana, text="💾 GUARDAR", bg="#00cc66", fg="white",
+                                      font=("Courier", 9, "bold"), command=guardar_manual)
+            canvas.create_window(590, 30, window=boton_guardar, tags="selectorniv")
+ 
         if not ya_cargo:
             ventana.after(150, cargar)
             ya_cargo = True
@@ -576,6 +705,12 @@ def iniciar_interfaz():
     canvas = tk.Canvas(ventana, highlightthickness=0, bd=0)
     canvas.pack(fill="both", expand=True)
     ya_cargo = False
+ 
+    # --- estado de niveles (se inicializa al empezar) ---
+    canvas.nivel_desbloqueado  = 1          # solo nivel 1 disponible al inicio
+    canvas.niveles_completados = set()      # niveles ya ganados
+    canvas.nombre_jugador      = "Jugador"  # se sobreescribe al pedir nombre
+    canvas.juego_terminado     = False
  
     bg1 = tk.PhotoImage(file="Bg1.png");     canvas.bg1 = bg1
     bg2 = tk.PhotoImage(file="Levels1.png"); canvas.bg2 = bg2

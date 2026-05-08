@@ -10,7 +10,7 @@ personajesP = []
 #------------------------------------------------------------#
 def cargar_personajes(archivo="personajes.txt"):
     global personajesP
-    with open(archivo, "r", encoding="utf-8") as f: 
+    with open(archivo, "r", encoding="utf-8") as f:
         for linea in f:
             linea = linea.strip()
             if linea:
@@ -68,3 +68,48 @@ def generar_equipo_enemigo(nivel, inventario_jugador):
  
     equipo = random.sample(disponibles, 3)
     return [dict(p) for p in equipo], hollow_imagenes[nivel]
+ 
+#------------------------------------------------------------#
+#  PUNTAJES  (estilo arcade: nombre → puntaje más alto)
+#  Archivo puntajes.txt  →  una línea por jugador:
+#      nombre,puntaje
+#  guardar_puntaje() actualiza si el nuevo es mayor.
+#  cargar_puntajes()  retorna lista ordenada de mayor a menor.
+#------------------------------------------------------------#
+ARCHIVO_PUNTAJES = "puntajes.txt"
+ 
+def cargar_puntajes():
+    """Retorna lista de dicts {nombre, puntaje} ordenada de mayor a menor."""
+    tabla = {}
+    try:
+        with open(ARCHIVO_PUNTAJES, "r", encoding="utf-8") as f:
+            for linea in f:
+                linea = linea.strip()
+                if linea:
+                    partes = linea.split(",")
+                    if len(partes) == 2:
+                        nombre  = partes[0].strip()
+                        puntaje = int(partes[1].strip())
+                        # guarda el mayor si el nombre aparece varias veces
+                        if nombre not in tabla or puntaje > tabla[nombre]:
+                            tabla[nombre] = puntaje
+    except FileNotFoundError:
+        pass
+    return sorted(
+        [{"nombre": n, "puntaje": p} for n, p in tabla.items()],
+        key=lambda x: x["puntaje"],
+        reverse=True
+    )
+ 
+def guardar_puntaje(nombre, puntaje):
+    """
+    Guarda o actualiza el puntaje del jugador.
+    Si ya existe con un puntaje mayor, NO lo sobreescribe.
+    Reescribe el archivo completo con la tabla actualizada.
+    """
+    tabla = {e["nombre"]: e["puntaje"] for e in cargar_puntajes()}
+    if nombre not in tabla or puntaje > tabla[nombre]:
+        tabla[nombre] = puntaje
+    with open(ARCHIVO_PUNTAJES, "w", encoding="utf-8") as f:
+        for n, p in tabla.items():
+            f.write(f"{n},{p}\n")
