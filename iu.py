@@ -690,6 +690,61 @@ def iniciar_interfaz():
     def aboutf():
         canvas.itemconfig(About, image=AboutPImage)
         ventana.after(150, lambda: canvas.itemconfig(About, image=AboutImage))
+
+        popup_about = tk.Toplevel(ventana, bg="#0a0a0a")
+        popup_about.geometry("480x400")
+        popup_about.resizable(False, False)
+        popup_about.title("About")
+        popup_about.grab_set()
+
+        cv = tk.Canvas(popup_about, width=480, height=400,
+                    bg="#0a0a0a", highlightthickness=0)
+        cv.pack()
+
+        # Título
+        cv.create_text(240, 40,  text="★  H O L L O W S  ★",
+                    fill="#FFD700", font=("Courier", 22, "bold"))
+        cv.create_text(240, 65,  text="─" * 40,
+                    fill="#444", font=("Courier", 9))
+
+        # Descripción
+        cv.create_text(240, 100,
+                    text="Un juego de batallas por turnos donde coleccionás\n"
+                            "pokemones, conquistás mundos y defendés tu equipo\n"
+                            "de los Hollows que acechan cada nivel.",
+                    fill="#cccccc", font=("Courier", 10),
+                    justify="center", width=420)
+
+        cv.create_text(240, 165, text="─" * 40,
+                    fill="#444", font=("Courier", 9))
+
+        # Créditos
+        cv.create_text(240, 195, text="C R É D I T O S",
+                    fill="#FFD700", font=("Courier", 12, "bold"))
+
+        cv.create_text(240, 230,
+                    text="Desarrollador:   Álvaro Sojo Barquero",
+                    fill="#00FF88", font=("Courier", 10))
+        cv.create_text(240, 252,
+                    text="Carné:           2026010259",
+                    fill="#00FF88", font=("Courier", 10))
+        cv.create_text(240, 274,
+                    text="Curso:           Programación",
+                    fill="#00FF88", font=("Courier", 10))
+        cv.create_text(240, 296,
+                    text="Institución:     Instituto Tecnológico de Costa Rica",
+                    fill="#00FF88", font=("Courier", 10))
+        cv.create_text(240, 318,
+                    text="Profesor:        Elioth Ramírez",
+                    fill="#00FF88", font=("Courier", 10))
+
+        cv.create_text(240, 350, text="─" * 40,
+                    fill="#444", font=("Courier", 9))
+
+        popup_about.bind("<Escape>", lambda e: popup_about.destroy())
+        tk.Button(cv, text="CERRAR", bg="#FFD700", fg="black",
+                font=("Courier", 10, "bold"),
+                command=popup_about.destroy).place(x=190, y=368)
  
     def salir(event):
         ventana.destroy()
